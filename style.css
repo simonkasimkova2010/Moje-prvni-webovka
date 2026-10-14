@@ -12,4 +12,19 @@ button {
   border-radius: 8px;
   background: #7aa2f7;
   cursor: pointer;
+  #deska {
+  display: grid;
+  grid-template-columns: repeat(3, 90px);
+  gap: 8px;
+  justify-content: center;
+  margin: 24px 0;
+}
+.policko {
+  width: 90px;
+  height: 90px;
+  font-size: 40px;
+  padding: 0;
+  background: #2a2a3c;
+  color: white;
+}
 }
