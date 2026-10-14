@@ -2,11 +2,12 @@ const uvod = document.getElementById("uvod");
 const hra = document.getElementById("hra");
 const deska = document.getElementById("deska");
 const stav = document.getElementById("stav");
-const vyhry = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const N = 8;
+const CIL = 3;
 let pole, hrac, konec;
 
 function novaHra() {
-  pole = Array(9).fill("");
+  pole = Array(N * N).fill("");
   hrac = "X";
   konec = false;
   stav.textContent = "Hraje X";
@@ -19,11 +20,30 @@ function novaHra() {
   });
 }
 
+function vyhra(i) {
+  const r = Math.floor(i / N);
+  const c = i % N;
+  const smery = [[0, 1], [1, 0], [1, 1], [1, -1]];
+  return smery.some(([dr, dc]) => {
+    let pocet = 1;
+    for (const s of [1, -1]) {
+      let rr = r + dr * s;
+      let cc = c + dc * s;
+      while (rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc] === hrac) {
+        pocet++;
+        rr += dr * s;
+        cc += dc * s;
+      }
+    }
+    return pocet >= CIL;
+  });
+}
+
 function tah(i, b) {
   if (konec || pole[i]) return;
   pole[i] = hrac;
   b.textContent = hrac;
-  if (vyhry.some(v => v.every(k => pole[k] === hrac))) {
+  if (vyhra(i)) {
     stav.textContent = "Vyhrál " + hrac + "! 🎉";
     konec = true;
   } else if (pole.every(p => p)) {
