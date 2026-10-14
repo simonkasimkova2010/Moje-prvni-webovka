@@ -60,3 +60,11 @@ input {
   box-shadow: 0 0 10px rgba(255, 92, 184, 0.25);
   text-shadow: 0 0 8px rgba(255, 150, 210, 0.8);
 }
+.menu button {
+  display: block;
+  width: 260px;
+  margin: 12px auto;
+}
+#menu {
+  margin-left: 8px;
+}

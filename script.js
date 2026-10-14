@@ -6,17 +6,27 @@ const zprava = document.getElementById("zprava");
 const kodInput = document.getElementById("kod");
 const N = 8;
 const CIL = 3;
-let pole, hrac, konec, moje, spojeni, peer, tlacitka;
+// rezim: "offline" (dva hráči u jednoho zařízení), "online" nebo "bot"
+let pole, hrac, konec, moje, spojeni, peer, tlacitka, rezim, casovacBota;
 
 function ukazStav() {
   if (konec) return;
-  stav.textContent = hrac === moje
-    ? "Jsi na tahu (" + hrac + ")"
-    : "Hraje soupeř (" + hrac + ")";
+  if (rezim === "offline") {
+    stav.textContent = "Na tahu: " + hrac;
+  } else if (rezim === "bot") {
+    stav.textContent = hrac === moje
+      ? "Jsi na tahu (" + hrac + ")"
+      : "Bot přemýšlí... 🤖";
+  } else {
+    stav.textContent = hrac === moje
+      ? "Jsi na tahu (" + hrac + ")"
+      : "Hraje soupeř (" + hrac + ")";
+  }
 }
 
 function novaHra(odeslat) {
   if (odeslat && spojeni) spojeni.send({ typ: "znovu" });
+  clearTimeout(casovacBota);
   pole = Array(N * N).fill("");
   hrac = "X";
   konec = false;
@@ -25,8 +35,9 @@ function novaHra(odeslat) {
     const b = document.createElement("button");
     b.className = "policko";
     b.addEventListener("click", () => {
-      if (konec || hrac !== moje || pole[i]) return;
-      tah(i, true);
+      if (konec || pole[i]) return;
+      if (rezim !== "offline" && hrac !== moje) return;
+      tah(i, rezim === "online");
     });
     deska.appendChild(b);
     return b;
@@ -34,23 +45,30 @@ function novaHra(odeslat) {
   ukazStav();
 }
 
-function vyhra(i) {
+// Kolik značek by bylo v nejdelší řadě přes políčko i, kdyby tam stála značka znak.
+function delkaRady(i, znak) {
   const r = Math.floor(i / N);
   const c = i % N;
   const smery = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  return smery.some(([dr, dc]) => {
+  let nejvic = 0;
+  for (const [dr, dc] of smery) {
     let pocet = 1;
     for (const s of [1, -1]) {
       let rr = r + dr * s;
       let cc = c + dc * s;
-      while (rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc] === hrac) {
+      while (rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc] === znak) {
         pocet++;
         rr += dr * s;
         cc += dc * s;
       }
     }
-    return pocet >= CIL;
-  });
+    nejvic = Math.max(nejvic, pocet);
+  }
+  return nejvic;
+}
+
+function vyhra(i) {
+  return delkaRady(i, hrac) >= CIL;
 }
 
 function tah(i, odeslat) {
@@ -59,7 +77,9 @@ function tah(i, odeslat) {
   tlacitka[i].textContent = hrac;
   if (odeslat) spojeni.send({ typ: "tah", i: i });
   if (vyhra(i)) {
-    stav.textContent = hrac === moje ? "Vyhrál jsi! 🎉" : "Soupeř vyhrál 😅";
+    if (rezim === "offline") stav.textContent = "Vyhrál " + hrac + "! 🎉";
+    else if (hrac === moje) stav.textContent = "Vyhrál jsi! 🎉";
+    else stav.textContent = rezim === "bot" ? "Bot vyhrál 🤖" : "Soupeř vyhrál 😅";
     konec = true;
   } else if (pole.every(p => p)) {
     stav.textContent = "Remíza 🤝";
@@ -67,28 +87,69 @@ function tah(i, odeslat) {
   } else {
     hrac = hrac === "X" ? "O" : "X";
     ukazStav();
+    if (rezim === "bot" && hrac !== moje) {
+      casovacBota = setTimeout(tahBota, 500);
+    }
   }
+}
+
+function tahBota() {
+  const ja = hrac;
+  const souper = ja === "X" ? "O" : "X";
+  let nejlepsi = -1;
+  let nejlepsiSkore = -1;
+  pole.forEach((p, i) => {
+    if (p) return;
+    const mojeRada = delkaRady(i, ja);
+    const jehoRada = delkaRady(i, souper);
+    let skore;
+    // 1. můžu vyhrát, 2. musím zablokovat, 3. jinak stavím svoje řady a kazím soupeřovy
+    if (mojeRada >= CIL) skore = 1000;
+    else if (jehoRada >= CIL) skore = 500;
+    else skore = mojeRada * 10 + jehoRada * 8;
+    // trocha náhody, ať bot nehraje pořád stejně
+    skore += Math.random() * 5;
+    if (skore > nejlepsiSkore) {
+      nejlepsiSkore = skore;
+      nejlepsi = i;
+    }
+  });
+  tah(nejlepsi, false);
 }
 
 function nastavSpojeni(c) {
   spojeni = c;
   c.on("data", d => {
+    if (spojeni !== c) return;
     if (d.typ === "tah") tah(d.i, false);
     if (d.typ === "znovu") novaHra(false);
   });
   c.on("close", () => {
+    if (spojeni !== c) return;
     konec = true;
     stav.textContent = "Soupeř se odpojil";
   });
 }
 
-function start() {
+function start(r) {
+  rezim = r;
   uvod.hidden = true;
   hra.hidden = false;
   novaHra(false);
 }
 
+function doMenu() {
+  clearTimeout(casovacBota);
+  spojeni = null;
+  if (peer) peer.destroy();
+  peer = null;
+  zprava.textContent = "";
+  hra.hidden = true;
+  uvod.hidden = false;
+}
+
 function vytvor() {
+  if (peer) peer.destroy();
   const kod = String(Math.floor(1000 + Math.random() * 9000));
   moje = "X";
   peer = new Peer("pisk-" + kod);
@@ -97,8 +158,13 @@ function vytvor() {
   });
   peer.on("connection", c => {
     c.on("open", () => {
+      // třetího hráče už nepustíme
+      if (spojeni) {
+        c.close();
+        return;
+      }
       nastavSpojeni(c);
-      start();
+      start("online");
     });
   });
   peer.on("error", e => {
@@ -113,6 +179,7 @@ function pripoj() {
     zprava.textContent = "Zadej kód hry.";
     return;
   }
+  if (peer) peer.destroy();
   moje = "O";
   zprava.textContent = "Připojuji...";
   peer = new Peer();
@@ -120,7 +187,7 @@ function pripoj() {
     const c = peer.connect("pisk-" + kod);
     c.on("open", () => {
       nastavSpojeni(c);
-      start();
+      start("online");
     });
   });
   peer.on("error", e => {
@@ -130,6 +197,12 @@ function pripoj() {
   });
 }
 
+document.getElementById("offline").addEventListener("click", () => start("offline"));
+document.getElementById("bot").addEventListener("click", () => {
+  moje = "X";
+  start("bot");
+});
 document.getElementById("vytvorit").addEventListener("click", vytvor);
 document.getElementById("pripojit").addEventListener("click", pripoj);
 document.getElementById("znovu").addEventListener("click", () => novaHra(true));
+document.getElementById("menu").addEventListener("click", doMenu);

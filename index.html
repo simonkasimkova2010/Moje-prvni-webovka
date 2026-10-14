@@ -10,7 +10,12 @@
 </head>
 <body>
   <div id="uvod">
-    <h1>Piškvorky online</h1>
+    <h1>Piškvorky</h1>
+    <div class="menu">
+      <button id="offline">👥 Kamarád vedle mě</button>
+      <button id="bot">🤖 Proti botovi</button>
+    </div>
+    <h2>Online s kamarádem</h2>
     <button id="vytvorit">Vytvořit hru</button>
     <p>nebo zadej kód od kamaráda:</p>
     <input id="kod" inputmode="numeric" maxlength="4" placeholder="1234">
@@ -22,6 +27,7 @@
     <h2 id="stav"></h2>
     <div id="deska"></div>
     <button id="znovu">Nová hra</button>
+    <button id="menu">Menu</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
