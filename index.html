@@ -3,26 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Moje první webovka</title> 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎀</text></svg>">
+  <title>Moje první webovka</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<body>
   <div id="uvod">
-    <h1>Moje první webovka</h1>
-    <button id="tlacitko">Hrát piškvorky</button>
+    <h1>Piškvorky online</h1>
+    <button id="vytvorit">Vytvořit hru</button>
+    <p>nebo zadej kód od kamaráda:</p>
+    <input id="kod" inputmode="numeric" maxlength="4" placeholder="1234">
+    <button id="pripojit">Připojit se</button>
+    <p id="zprava"></p>
   </div>
 
   <div id="hra" hidden>
-    <h2 id="stav">Hraje X</h2>
+    <h2 id="stav"></h2>
     <div id="deska"></div>
     <button id="znovu">Nová hra</button>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="script.js"></script>
 </body>
-</body>
 </html>
-
