@@ -1,17 +1,46 @@
 body {
-  font-family: sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 40px 20px;
+  font-family: -apple-system, "Helvetica Neue", sans-serif;
   text-align: center;
-  background: #1e1e2e;
   color: white;
-  padding: 40px;
+  background-color: #120712;
+  background-image: radial-gradient(ellipse at top, #ff7ac8 0%, #b0307f 25%, #2a0f24 60%, #120712 100%);
+  background-repeat: no-repeat;
+}
+h1, h2 {
+  text-shadow: 0 0 20px rgba(255, 105, 190, 0.6);
+}
+p {
+  opacity: 0.85;
 }
 button {
-  padding: 12px 24px;
+  padding: 14px 28px;
   font-size: 18px;
+  font-weight: 600;
+  color: white;
   border: none;
-  border-radius: 8px;
-  background: #7aa2f7;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff5cb8, #c2368f);
+  box-shadow: 0 8px 24px rgba(255, 92, 184, 0.45);
   cursor: pointer;
+}
+button:active {
+  transform: scale(0.97);
+}
+input {
+  width: 120px;
+  padding: 12px;
+  font-size: 18px;
+  text-align: center;
+  color: white;
+  border: 1px solid rgba(255, 150, 210, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 16px rgba(255, 92, 184, 0.25);
+  outline: none;
 }
 #deska {
   display: grid;
@@ -25,7 +54,9 @@ button {
   height: 40px;
   font-size: 22px;
   padding: 0;
-  border-radius: 6px;
-  background: #2a2a3c;
-  color: white;
+  border: 1px solid rgba(255, 150, 210, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(255, 92, 184, 0.25);
+  text-shadow: 0 0 8px rgba(255, 150, 210, 0.8);
 }
