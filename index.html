@@ -4,20 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Piškvorky</title>
-  <meta name="apple-mobile-web-app-title" content="Piškvorky">
-  <meta name="application-name" content="Piškvorky">
-  <link rel="icon" href="ikona.svg" type="image/svg+xml">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <div id="uvod">
     <h1>Piškvorky</h1>
-    <div class="menu">
-      <button id="offline">👥 Kamarád vedle mě</button>
-      <button id="bot">🤖 Proti botovi</button>
-    </div>
-    <h2>Online s kamarádem</h2>
+    <button id="offline">Hrát na jednom zařízení</button>
+    <p>nebo hrát online:</p>
     <button id="vytvorit">Vytvořit hru</button>
     <p>nebo zadej kód od kamaráda:</p>
     <input id="kod" inputmode="numeric" maxlength="4" placeholder="1234">
@@ -32,8 +27,15 @@
     <button id="menu">Menu</button>
   </div>
 
+  <div id="okno" hidden>
+    <div class="karta">
+      <h2 id="oknoText"></h2>
+      <button id="oknoZnovu">Hrát znovu</button>
+      <button id="oknoKonec">Ukončit</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=2"></script>
 </body>
 </html>
-

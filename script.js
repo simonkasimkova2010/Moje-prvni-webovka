@@ -4,10 +4,20 @@ const deska = document.getElementById("deska");
 const stav = document.getElementById("stav");
 const zprava = document.getElementById("zprava");
 const kodInput = document.getElementById("kod");
+const okno = document.getElementById("okno");
+const oknoText = document.getElementById("oknoText");
 const N = 8;
 const CIL = 4;
 let pole, hrac, konec, moje, spojeni, peer, tlacitka;
 let rezim = "offline";
+
+function ukazOkno(text) {
+  setTimeout(() => {
+    if (!konec) return;
+    oknoText.textContent = text;
+    okno.hidden = false;
+  }, 400);
+}
 
 function ukazStav() {
   if (konec) return;
@@ -22,6 +32,7 @@ function ukazStav() {
 
 function novaHra(odeslat) {
   if (odeslat && spojeni) spojeni.send({ typ: "znovu" });
+  okno.hidden = true;
   pole = Array(N * N).fill("");
   hrac = "X";
   konec = false;
@@ -65,12 +76,21 @@ function tah(i, odeslat) {
   tlacitka[i].textContent = hrac;
   if (odeslat) spojeni.send({ typ: "tah", i: i });
   if (vyhra(i)) {
-    if (rezim === "offline") stav.textContent = "Vyhrál " + hrac + "! 🎉";
-    else stav.textContent = hrac === moje ? "Vyhrál jsi! 🎉" : "Soupeř vyhrál 😅";
     konec = true;
+    if (rezim === "offline") {
+      stav.textContent = "Vyhrál " + hrac + "! 🎉";
+      ukazOkno("Gratuluji, vyhrál hráč " + hrac + "🎉");
+    } else if (hrac === moje) {
+      stav.textContent = "Vyhrál jsi! 🎉";
+      ukazOkno("Gratuluji, vyhrál jsi🎉");
+    } else {
+      stav.textContent = "Soupeř vyhrál 😅";
+      ukazOkno("Prohrál jsi, zkus to znova🍀");
+    }
   } else if (pole.every(p => p)) {
-    stav.textContent = "Remíza 🤝";
     konec = true;
+    stav.textContent = "Remíza 🤝";
+    ukazOkno("Remíza🤝");
   } else {
     hrac = hrac === "X" ? "O" : "X";
     ukazStav();
@@ -85,6 +105,7 @@ function nastavSpojeni(c) {
   });
   c.on("close", () => {
     konec = true;
+    okno.hidden = true;
     stav.textContent = "Soupeř se odpojil";
   });
 }
@@ -147,3 +168,5 @@ document.getElementById("vytvorit").addEventListener("click", vytvor);
 document.getElementById("pripojit").addEventListener("click", pripoj);
 document.getElementById("znovu").addEventListener("click", () => novaHra(rezim === "online"));
 document.getElementById("menu").addEventListener("click", () => location.reload());
+document.getElementById("oknoZnovu").addEventListener("click", () => novaHra(rezim === "online"));
+document.getElementById("oknoKonec").addEventListener("click", () => location.reload());
