@@ -4,8 +4,9 @@ const deska = document.getElementById("deska");
 const stav = document.getElementById("stav");
 const zprava = document.getElementById("zprava");
 const kodInput = document.getElementById("kod");
-const N = 8;
-const CIL = 3;
+const CIL = 4;
+const CIL = 4;
+
 // rezim: "offline" (dva hráči u jednoho zařízení), "online" nebo "bot"
 let pole, hrac, konec, moje, spojeni, peer, tlacitka, rezim, casovacBota;
 
