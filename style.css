@@ -17,6 +17,7 @@ p {
   opacity: 0.85;
 }
 button {
+  margin: 4px;
   padding: 14px 28px;
   font-size: 18px;
   font-weight: 600;
@@ -44,27 +45,20 @@ input {
 }
 #deska {
   display: grid;
-  grid-template-columns: repeat(8, 40px);
+  grid-template-columns: repeat(8, 1fr);
   gap: 4px;
-  justify-content: center;
-  margin: 24px 0;
+  max-width: 360px;
+  margin: 24px auto;
 }
 .policko {
-  width: 40px;
-  height: 40px;
-  font-size: 22px;
+  width: 100%;
+  aspect-ratio: 1;
+  margin: 0;
   padding: 0;
+  font-size: 20px;
   border: 1px solid rgba(255, 150, 210, 0.3);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 10px rgba(255, 92, 184, 0.25);
   text-shadow: 0 0 8px rgba(255, 150, 210, 0.8);
-}
-.menu button {
-  display: block;
-  width: 260px;
-  margin: 12px auto;
-}
-#menu {
-  margin-left: 8px;
 }
