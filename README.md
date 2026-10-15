@@ -1,2 +1,2 @@
-# Moje-prvni-webovka
-Muj prvni pokus o webovku ve VS code.
+# piskovrky
+Muj prvni pokus o webovku ve VS. Hra piškvorky.
