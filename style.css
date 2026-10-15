@@ -2,65 +2,168 @@ body {
   margin: 0;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 40px 20px;
+  padding: 36px 16px;
   font-family: -apple-system, "Helvetica Neue", sans-serif;
   text-align: center;
   color: white;
   background-color: #120712;
-  background-image: radial-gradient(ellipse at top, #ff7ac8 0%, #b0307f 25%, #2a0f24 60%, #120712 100%);
+  background-image:
+    radial-gradient(ellipse at top, #ff7ac8 0%, #b0307f 25%, #2a0f24 60%, #120712 100%);
   background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow-x: hidden;
 }
-h1, h2 {
+body::before {
+  content: "";
+  position: fixed;
+  inset: auto -20% -30% -20%;
+  height: 60%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(120, 200, 255, 0.25), transparent 65%);
+  animation: dycha 6s ease-in-out infinite alternate;
+}
+@keyframes dycha {
+  from { opacity: 0.4; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+h1 {
+  margin: 0 0 4px;
+  font-size: 36px;
+  background: linear-gradient(90deg, #fff, #ffb3e1, #9fe6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 105, 190, 0.6));
+}
+h2, h3 {
   text-shadow: 0 0 20px rgba(255, 105, 190, 0.6);
+}
+h3 {
+  margin: 28px 0 8px;
 }
 p {
   opacity: 0.85;
 }
+.podnadpis {
+  margin: 0 0 20px;
+}
+#uvod {
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 28px 18px;
+  border: 1px solid rgba(255, 170, 220, 0.3);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 50px rgba(255, 92, 184, 0.25);
+}
 button {
-  margin: 4px;
-  padding: 14px 28px;
+  margin: 5px;
+  padding: 14px 26px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: white;
   border: none;
   border-radius: 999px;
   background: linear-gradient(135deg, #ff5cb8, #c2368f);
   box-shadow: 0 8px 24px rgba(255, 92, 184, 0.45);
   cursor: pointer;
+  transition: transform 0.15s;
 }
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
+}
+button.sekundarni {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 170, 220, 0.5);
+  box-shadow: none;
+}
+.kodradek {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 input {
-  width: 120px;
+  width: 100px;
   padding: 12px;
   font-size: 18px;
   text-align: center;
   color: white;
   border: 1px solid rgba(255, 150, 210, 0.5);
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 16px rgba(255, 92, 184, 0.25);
   outline: none;
 }
+input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+#stav {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 10px 22px;
+  font-size: 20px;
+  border: 1px solid rgba(255, 170, 220, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
 #deska {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  max-width: 360px;
-  margin: 24px auto;
+  gap: 5px;
+  max-width: 380px;
+  margin: 0 auto 20px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 170, 220, 0.3);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 50px rgba(255, 92, 184, 0.25);
 }
 .policko {
   width: 100%;
   aspect-ratio: 1;
   margin: 0;
   padding: 0;
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
   border: 1px solid rgba(255, 150, 210, 0.3);
-  border-radius: 8px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 10px rgba(255, 92, 184, 0.25);
-  text-shadow: 0 0 8px rgba(255, 150, 210, 0.8);
+  box-shadow: none;
+}
+.policko.x {
+  color: #fff;
+  text-shadow: 0 0 10px #ff4fb0, 0 0 22px #ff4fb0;
+}
+.policko.o {
+  color: #bff0ff;
+  text-shadow: 0 0 10px #3cc8ff, 0 0 22px #3cc8ff;
+}
+.policko.nove {
+  animation: pop 0.25s ease-out;
+}
+@keyframes pop {
+  0% { transform: scale(0.3); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.policko.posledni {
+  border: 2px solid #fff;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.7);
+}
+.policko.vitez {
+  border-color: #ffe066;
+  background: linear-gradient(135deg, rgba(255, 224, 102, 0.55), rgba(255, 150, 80, 0.45));
+  animation: zlato 0.8s ease-in-out infinite alternate;
+}
+@keyframes zlato {
+  from { box-shadow: 0 0 6px #ffe066; }
+  to { box-shadow: 0 0 22px #ffe066; }
 }
 #okno {
   position: fixed;
@@ -83,6 +186,11 @@ input {
   border-radius: 28px;
   background: linear-gradient(160deg, #4a1238, #1c0a18);
   box-shadow: 0 0 40px rgba(255, 92, 184, 0.5);
+  animation: objev 0.3s ease-out;
+}
+@keyframes objev {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 .karta h2 {
   margin-top: 0;
@@ -90,6 +198,16 @@ input {
 }
 .karta button {
   display: block;
-  width: 100%;
-  margin: 10px 0 0;
+  width: calc(100% - 10px);
+}
+.konfeta {
+  position: fixed;
+  top: -40px;
+  z-index: 20;
+  font-size: 28px;
+  pointer-events: none;
+  animation: padani 3s linear forwards;
+}
+@keyframes padani {
+  to { transform: translateY(110vh) rotate(360deg); }
 }

@@ -8,34 +8,55 @@ const okno = document.getElementById("okno");
 const oknoText = document.getElementById("oknoText");
 const N = 8;
 const CIL = 4;
+const SMERY = [[0, 1], [1, 0], [1, 1], [1, -1]];
 let pole, hrac, konec, moje, spojeni, peer, tlacitka;
 let rezim = "offline";
+let posledni = -1;
+let casovacBota = null;
 
-function ukazOkno(text) {
+function konfety() {
+  const ems = ["🎉", "✨", "💖", "🎊", "⭐"];
+  for (let k = 0; k < 28; k++) {
+    const s = document.createElement("span");
+    s.className = "konfeta";
+    s.textContent = ems[k % ems.length];
+    s.style.left = Math.random() * 95 + "vw";
+    s.style.animationDelay = Math.random() * 1.2 + "s";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 4500);
+  }
+}
+
+function ukazOkno(text, vyhral) {
   setTimeout(() => {
     if (!konec) return;
     oknoText.textContent = text;
     okno.hidden = false;
-  }, 400);
+    if (vyhral) konfety();
+  }, 700);
 }
 
 function ukazStav() {
   if (konec) return;
   if (rezim === "offline") {
-    stav.textContent = "Na tahu: " + hrac;
+    stav.textContent = "Na tahu: " + hrac + " 🎯";
+  } else if (rezim === "bot") {
+    stav.textContent = hrac === "X" ? "Jsi na tahu (X) 🎯" : "Bot přemýšlí... 🤖";
   } else {
     stav.textContent = hrac === moje
-      ? "Jsi na tahu (" + hrac + ")"
-      : "Hraje soupeř (" + hrac + ")";
+      ? "Jsi na tahu (" + hrac + ") 🎯"
+      : "Hraje soupeř (" + hrac + ") ⏳";
   }
 }
 
 function novaHra(odeslat) {
   if (odeslat && spojeni) spojeni.send({ typ: "znovu" });
+  clearTimeout(casovacBota);
   okno.hidden = true;
   pole = Array(N * N).fill("");
   hrac = "X";
   konec = false;
+  posledni = -1;
   deska.innerHTML = "";
   tlacitka = pole.map((_, i) => {
     const b = document.createElement("button");
@@ -43,6 +64,7 @@ function novaHra(odeslat) {
     b.addEventListener("click", () => {
       if (konec || pole[i]) return;
       if (rezim === "online" && hrac !== moje) return;
+      if (rezim === "bot" && hrac !== "X") return;
       tah(i, rezim === "online");
     });
     deska.appendChild(b);
@@ -51,49 +73,105 @@ function novaHra(odeslat) {
   ukazStav();
 }
 
-function vyhra(i) {
+function linie(i, kdo) {
   const r = Math.floor(i / N);
   const c = i % N;
-  const smery = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  return smery.some(([dr, dc]) => {
-    let pocet = 1;
+  let nej = [];
+  for (const [dr, dc] of SMERY) {
+    const bunky = [i];
     for (const s of [1, -1]) {
       let rr = r + dr * s;
       let cc = c + dc * s;
-      while (rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc] === hrac) {
-        pocet++;
+      while (rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc] === kdo) {
+        bunky.push(rr * N + cc);
         rr += dr * s;
         cc += dc * s;
       }
     }
-    return pocet >= CIL;
+    if (bunky.length > nej.length) nej = bunky;
+  }
+  return nej;
+}
+
+function maSouseda(i) {
+  const r = Math.floor(i / N);
+  const c = i % N;
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const rr = r + dr;
+      const cc = c + dc;
+      if ((dr || dc) && rr >= 0 && rr < N && cc >= 0 && cc < N && pole[rr * N + cc]) return true;
+    }
+  }
+  return false;
+}
+
+function ohodnot(i) {
+  const m = linie(i, "O").length;
+  const s = linie(i, "X").length;
+  if (m >= CIL) return 10000;
+  if (s >= CIL) return 5000;
+  let sk = m * m * 10 + s * s * 8;
+  if (m === CIL - 1) sk += 300;
+  if (s === CIL - 1) sk += 250;
+  if (maSouseda(i)) sk += 15;
+  const r = Math.floor(i / N);
+  const c = i % N;
+  sk -= Math.abs(r - 3.5) + Math.abs(c - 3.5);
+  return sk + Math.random();
+}
+
+function botTah() {
+  if (konec) return;
+  let nej = -1;
+  let nejSk = -Infinity;
+  pole.forEach((p, i) => {
+    if (p) return;
+    const sk = ohodnot(i);
+    if (sk > nejSk) {
+      nejSk = sk;
+      nej = i;
+    }
   });
+  if (nej >= 0) tah(nej, false);
+}
+
+function konecHry(kdo) {
+  if (rezim === "offline") {
+    stav.textContent = "Vyhrál " + kdo + "! 🎉";
+    ukazOkno("Gratuluji, vyhrál hráč " + kdo + "🎉", true);
+  } else {
+    const vyhral = rezim === "bot" ? kdo === "X" : kdo === moje;
+    stav.textContent = vyhral ? "Vyhrál jsi! 🎉" : (rezim === "bot" ? "Bot vyhrál 🤖" : "Soupeř vyhrál 😅");
+    ukazOkno(vyhral ? "Gratuluji, vyhrál jsi🎉" : "Prohrál jsi, zkus to znova🍀", vyhral);
+  }
 }
 
 function tah(i, odeslat) {
   if (konec || pole[i]) return;
   pole[i] = hrac;
-  tlacitka[i].textContent = hrac;
+  const b = tlacitka[i];
+  b.textContent = hrac;
+  b.classList.add(hrac === "X" ? "x" : "o", "nove");
+  if (posledni >= 0) tlacitka[posledni].classList.remove("posledni");
+  b.classList.add("posledni");
+  posledni = i;
   if (odeslat) spojeni.send({ typ: "tah", i: i });
-  if (vyhra(i)) {
+  const l = linie(i, hrac);
+  if (l.length >= CIL) {
     konec = true;
-    if (rezim === "offline") {
-      stav.textContent = "Vyhrál " + hrac + "! 🎉";
-      ukazOkno("Gratuluji, vyhrál hráč " + hrac + "🎉");
-    } else if (hrac === moje) {
-      stav.textContent = "Vyhrál jsi! 🎉";
-      ukazOkno("Gratuluji, vyhrál jsi🎉");
-    } else {
-      stav.textContent = "Soupeř vyhrál 😅";
-      ukazOkno("Prohrál jsi, zkus to znova🍀");
-    }
+    l.forEach(k => tlacitka[k].classList.add("vitez"));
+    konecHry(hrac);
   } else if (pole.every(p => p)) {
     konec = true;
     stav.textContent = "Remíza 🤝";
-    ukazOkno("Remíza🤝");
+    ukazOkno("Remíza🤝", false);
   } else {
     hrac = hrac === "X" ? "O" : "X";
     ukazStav();
+    if (rezim === "bot" && hrac === "O") {
+      casovacBota = setTimeout(botTah, 700);
+    }
   }
 }
 
@@ -106,7 +184,7 @@ function nastavSpojeni(c) {
   c.on("close", () => {
     konec = true;
     okno.hidden = true;
-    stav.textContent = "Soupeř se odpojil";
+    stav.textContent = "Soupeř se odpojil 👋";
   });
 }
 
@@ -162,6 +240,10 @@ function pripoj() {
 
 document.getElementById("offline").addEventListener("click", () => {
   rezim = "offline";
+  start();
+});
+document.getElementById("bot").addEventListener("click", () => {
+  rezim = "bot";
   start();
 });
 document.getElementById("vytvorit").addEventListener("click", vytvor);
